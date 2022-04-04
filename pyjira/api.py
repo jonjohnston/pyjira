@@ -14,7 +14,6 @@ except ImportError:
 requests.packages.urllib3.disable_warnings()
 
 token = ""
-user = ""
 base_url = ""
 
 
@@ -22,17 +21,14 @@ def load_variables():
     """Load variables from environment variables."""
 
     if (not os.environ.get("PYJIRA_TOKEN") or
-            not os.environ.get("PYJIRA_USER") or
             not os.environ.get("PYJIRA_ORG")):
         print ("One or more pyjira environment variables are not set. "
                "See README for directions on how to resolve this.")
         sys.exit("Error")
 
     global token
-    global user
     global base_url
     token = os.environ["PYJIRA_TOKEN"]
-    user = os.environ["PYJIRA_USER"]
     if (not os.environ.get("PYJIRA_BASEURL")):
         base_url = ("https://" + os.environ["PYJIRA_ORG"] + ".atlassian"
                 ".net/rest/api/2")
@@ -70,19 +66,17 @@ def _rest(req, url, data=None):
 
 def _api_action(cmd, url, data=None):
     """Take action based on what kind of request is needed."""
+    auth = "Bearer " + token
     requisite_headers = {'Accept': 'application/json',
-                         'Content-Type': 'application/json'}
-    auth = (user, token)
-
+                         'Content-Type': 'application/json',
+                         'Authorization': auth}
     if cmd == "GET":
-        response = requests.get(url, headers=requisite_headers, auth=auth)
+        response = requests.get(url, headers=requisite_headers)
     elif cmd == "PUT":
-        response = requests.put(url, headers=requisite_headers, auth=auth,
-                                data=data)
+        response = requests.put(url, headers=requisite_headers, data=data)
     elif cmd == "POST":
-        response = requests.post(url, headers=requisite_headers, auth=auth,
-                                 data=data)
+        response = requests.post(url, headers=requisite_headers, data=data)
     elif cmd == "DELETE":
-        response = requests.delete(url, headers=requisite_headers, auth=auth)
+        response = requests.delete(url, headers=requisite_headers)
 
     return response.status_code, response.text

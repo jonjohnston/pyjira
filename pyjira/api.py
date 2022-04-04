@@ -33,8 +33,11 @@ def load_variables():
     global base_url
     token = os.environ["PYJIRA_TOKEN"]
     user = os.environ["PYJIRA_USER"]
-    base_url = ("https://" + os.environ["PYJIRA_ORG"] + ".atlassian"
+    if (not os.environ.get("PYJIRA_BASEURL"):
+        base_url = ("https://" + os.environ["PYJIRA_ORG"] + ".atlassian"
                 ".net/rest/api/2")
+    else:
+        base_url = ("https://" + os.environ["PYJIRA_BASEURL"] + "/rest/api/2")
 
 
 def rest(url, req='get', data=None):
